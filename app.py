@@ -72,7 +72,6 @@ def markdown_table_to_html(md_text):
 
     for i in range(len(lines) - 1):
         if "|" in lines[i] and "|" in lines[i + 1]:
-            header = lines[i]
             separator = lines[i + 1]
             if re.search(r"-{3,}", separator.replace("|", "").replace(":", "")):
                 rows = [lines[j] for j in range(i, len(lines)) if "|" in lines[j]]
@@ -90,12 +89,18 @@ def markdown_table_to_html(md_text):
 
                         html_rows = []
                         html_rows.append(
-                            "<tr>" + "".join(f"<th style='padding:10px 12px; border:1px solid #dbeafe; background:#eff6ff; text-align:left;'>{html.escape(c)}</th>" for c in header_cells) + "</tr>"
+                            "<tr>" + "".join(
+                                f"<th style='padding:10px 12px; border:1px solid #dbeafe; background:#eff6ff; text-align:left;'>{html.escape(c)}</th>"
+                                for c in header_cells
+                            ) + "</tr>"
                         )
 
                         for row in body_rows:
                             html_rows.append(
-                                "<tr>" + "".join(f"<td style='padding:10px 12px; border:1px solid #e5e7eb; text-align:left;'>{html.escape(c)}</td>" for c in row) + "</tr>"
+                                "<tr>" + "".join(
+                                    f"<td style='padding:10px 12px; border:1px solid #e5e7eb; text-align:left;'>{html.escape(c)}</td>"
+                                    for c in row
+                                ) + "</tr>"
                             )
 
                         return (
@@ -146,6 +151,7 @@ def send_email(to_address, subject, body):
         st.error("Missing Gmail credentials in .streamlit/secrets.toml")
         return False
 
+    gmail_app_password = str(gmail_app_password).replace(" ", "")
     html_body = format_email_html(st.session_state.get("name", "there"), body)
     message = MIMEText(html_body, "html")
     message["Subject"] = subject
@@ -311,45 +317,3 @@ if user_input:
                 st.warning("Summary generated, but email was not sent.")
         else:
             st.warning("No summary was returned by the model.")
-            import streamlit as st
-
-st.set_page_config(
-    page_title="BillSnap",
-    page_icon="🧾",
-    layout="centered"
-)
-
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
-        color: #111827;
-    }
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
-    div[data-testid="stChatMessage"] {
-        border-radius: 18px;
-        background: rgba(255,255,255,0.86);
-        border: 1px solid rgba(148,163,184,0.25);
-        box-shadow: 0 6px 18px rgba(15,23,42,0.05);
-        padding: 0.8rem 0.9rem;
-    }
-    [data-testid="stChatInput"] {
-        border-radius: 14px;
-        border: 1px solid #dbeafe;
-        background: white;
-    }
-    .stButton > button {
-        background: linear-gradient(135deg, #2563eb, #4f46e5);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
